@@ -6,3 +6,4 @@ check process sphinx_<%=application%>_<%= stage %> with pidfile <%= shared_path 
 <% v[:sphinx_monit_rules].each do |i| %>
     <%= i %>
 <% end if v[:sphinx_monit_rules] %>
+<% end %>
