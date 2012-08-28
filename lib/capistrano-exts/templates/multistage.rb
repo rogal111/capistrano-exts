@@ -348,7 +348,7 @@ set :sphinx_monit_rules, ['if cpu > 80% for 3 cycles then alert',
 # database.yml
 #
 # Database configuration file (you can use all cap variables like: <%= deploy_to %> <%= stage %> <%= credentials[:user] %> <%= credentials[:pass] %> <%= rails_env %> etc)
-set :db_config_template, File.expand_path(File.join(File.dirname(__FILE__), 'deploy', 'database.yml.erb'))
+set :db_config_template, File.expand_path(File.join(File.dirname(__FILE__), 'database.yml.erb'))
 #
 #
 #############
@@ -357,7 +357,7 @@ set :db_config_template, File.expand_path(File.join(File.dirname(__FILE__), 'dep
 # Monit configuration file
 
 set :monit_configuration_file, "/etc/monit/monitrc"
-set :monit_template_file, File.expand_path(File.join(File.dirname(__FILE__), 'external', 'monitrc.erb'))
+set :monit_template_file, File.expand_path(File.join(File.dirname(__FILE__), '..', 'external', 'monitrc.erb'))
 
 #
 #

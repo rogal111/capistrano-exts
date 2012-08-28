@@ -35,7 +35,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           @logs_path=fetch(:logs_path,"#{shared_path}/log")
           @shared_path=shared_path
           result = ERB.new(template).result(binding)
-          put result, "#{shared_path}/config/redis_<%= name %>.conf"
+          put result, "#{shared_path}/config/redis_#{name}.conf"
         end
       end
     end

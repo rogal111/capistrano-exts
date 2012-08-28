@@ -20,6 +20,8 @@ Capistrano::Configuration.instance(:must_exist).load do
           result+="\n"+ERB.new(File.read(template_file)).result(binding)
         end
         put result, "#{shared_path}/config/monit.conf"
+      else
+        put '', "#{shared_path}/config/monit.conf"
       end
     end
     
