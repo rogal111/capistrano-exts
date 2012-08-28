@@ -1,4 +1,4 @@
-# Capistrano Exts (TechnoGate/capistrano-exts fork)
+# Capistrano Exts (by rogal111)
 
 This fork have new receipts for monit, redis, sphinx, nginx, logrotate. Read documentation in **/config/deploy/stage.rb** after executing `$ cap multistage:setup`.
 
