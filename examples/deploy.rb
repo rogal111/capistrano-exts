@@ -1,3 +1,15 @@
+#####################
+## RECOMENDED DEPLOYMENT PROCESS
+#
+#  1. cap [stage] deploy:server:setup
+#  2. cap [stage] deploy:setup
+#  3. cap [stage] deploy:cold
+#  *. cap [stage] deploy:migrations
+#
+#####################
+
+
+
 # Adding necessary paths
 $:.unshift(File.expand_path('./lib', ENV['rvm_path'])) # Add RVM's lib directory to the load path.
 
@@ -15,10 +27,11 @@ set :stages, [:development, :staging, :production]
 set :default_stage, :development
 
 # Capistrano extensions
-set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :rails, :servers]
+# :multistage, :git, :deploy, :mysql, :servers, :redis, :sphinx, :monit, :rails
+set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :servers, :sphinx, :redis, :monit, :rails]
 
 default_run_options[:pty] = true
-ssh_options[:forward_agent] = true
+#ssh_options[:forward_agent] = false
 
 # Bundler
 # set :bundle_gemfile, "Gemfile"
@@ -43,3 +56,6 @@ require 'capistrano-exts'
 
 # Require bundler tasks
 require 'bundler/capistrano'
+
+# Assets precompile
+#load 'deploy/assets'

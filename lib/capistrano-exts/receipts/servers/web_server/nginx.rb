@@ -25,9 +25,19 @@ Capistrano::Configuration.instance(:must_exist).load do
             nginx.logs_path   = fetch :logs_path
             nginx.application_url = fetch :application_url
             nginx.denied_access = fetch :denied_access if exists?(:denied_access)
-
-            nginx.listen_port = fetch(:web_server_listen_port) if exists?(:web_server_listen_port)
-
+            nginx.rails_env = fetch :rails_env
+            nginx.denied_access = fetch :denied_access if exists?(:denied_access)
+            nginx.passenger_min_instances = fetch :passenger_min_instances if exists?(:passenger_min_instances)
+            nginx.application_redirects = fetch :application_redirects if exists?(:application_redirects)
+            
+            if exists?(:web_server_listen_ports)
+              nginx.listen_ports = fetch(:web_server_listen_ports)
+            elsif exists?(:web_server_listen_port)
+              nginx.listen_ports = [fetch(:web_server_listen_port)] 
+            else
+              nginx.listen_ports = [80]
+            end
+            
             if exists?(:web_server_auth_file)
               nginx.authentification_file = fetch :web_server_auth_file
             end

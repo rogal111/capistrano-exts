@@ -1,5 +1,6 @@
 require 'digest/sha1'
 require 'highline'
+require 'tmpdir'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -16,16 +17,20 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Taken from Stackoverflow
   # http://stackoverflow.com/questions/1661586/how-can-you-check-to-see-if-a-file-exists-on-the-remote-server-in-capistrano
-  def remote_file_exists?(full_path)
-    'true' ==  capture("if [ -e #{full_path} ]; then echo 'true'; fi").strip
+  def remote_file_exists?(full_path,assudo=false)
+    if assudo
+      'true' ==  capture("#{try_sudo} sh -c \"if [ -e #{full_path} ]; then echo 'true'; fi\"").strip
+    else
+      'true' ==  capture("if [ -e #{full_path} ]; then echo 'true'; fi").strip
+    end
   end
 
-  def link_file(source_file, destination_file)
+  def link_file(source_file, destination_file, usesudo=true)
     if remote_file_exists?(source_file)
       begin
-        run "#{try_sudo} ln -nsf #{source_file} #{destination_file}"
+        run "#{try_sudo if usesudo} ln -nsf #{source_file} #{destination_file}"
       rescue Capistrano::CommandError
-        abort "Unable to create a link for '#{source_file}' at '#{destination_file}'"
+        abort "Unable to create a li'tttt'nk for '#{source_file}' at '#{destination_file}'"
       end
     end
   end
@@ -115,7 +120,7 @@ exhaustive_list_of_files_to_link() {
 
   def mysql_db_hosts
     # TODO: Do some real work here, we shouldn't be allowing all hosts but only all db/web/app hosts.
-    ['%']
+    ['localhost']
   end
 
   def generate_random_file_name(data = nil)
@@ -127,7 +132,11 @@ exhaustive_list_of_files_to_link() {
   end
 
   def random_tmp_file(data = nil)
-    "/tmp/#{generate_random_file_name data}"
+     "/tmp/#{generate_random_file_name data}"
+  end
+
+  def local_random_tmp_file(data = nil)
+     "#{Dir.tmpdir}/#{generate_random_file_name data}"
   end
 
   # Helper for some mysql tasks
@@ -168,8 +177,8 @@ password: #{credentials[:pass]}
   end
 
   # Read a remote file
-  def read(file)
-    capture("cat #{file}")
+  def read(file,assudo=false)
+    capture("#{try_sudo+' ' if assudo}cat #{file}")
   end
 
   # ask_for_confirmation(what)

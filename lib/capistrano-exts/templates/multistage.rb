@@ -1,3 +1,6 @@
+# PRODUCTION-specific deployment configuration
+# please put general deployment config in config/deploy.rb
+
 # Here you can set the server which you would like to, each server
 # each role can have multiple servers, each server defined as user@server.com:port
 # => port can be omiped and it defaults to 22
@@ -7,24 +10,24 @@ role :db, 'root@example.com:22', primary: true
 
 # Permissions and ownership
 # Uncomment if necessary...
-# set :app_owner, 'www-data'
-# set :app_group, 'www-data'
-# set :group_writable, true
+set :app_owner, 'www-data'
+set :app_group, 'www-data'
+set :group_writable, true
 
 # The project's branch to use
 # Uncomment and edit this if you're using git, for other SCM's please refer
 # to capistrano's documentation
 set :branch, "master"
 
-# Use sudo ?
-set :use_sudo, false
+# Using sudo when deploy:server:setup ?
+set :use_sudo_for_setup, true
 
 # Define deployments options
-set :deploy_to,   -> { "/home/vhosts/#{fetch :stage}/#{fetch :application}" }
-set :logs_path,   -> { "#{fetch :deploy_to}/logs" }
+set :deploy_to,   -> { "/var/www/#{fetch :application}_#{fetch :stage}" }
+set :logs_path,   -> { "#{fetch :deploy_to}/shared/log" }
 set :public_path, -> { "#{fetch :current_path}/public" }
 set :backup_path, -> { "#{fetch :deploy_to}/backups" }
-set :rails_env,   "development"
+set :rails_env,   "production"
 
 # How should we deploy?
 # Valid options:
@@ -58,10 +61,10 @@ set :keep_releases, 5
 # The contents_folders is a hash of key/value where the key is the name of the folder
 # created under 'shared_path/contents' and symlinked to the value (absolute path)
 # you can use public_path/current_path/deploy_to etc...
-# set :contents_folder, {
-#   'image' => "#{fetch :public_path}/images",
-#   'video' => "#{fetch :public_path}/videos",
-# }
+set :contents_folder, {
+   #'faktury' => "#{fetch :current_path}/data/faktury"
+   #'video' => "#{fetch :public_path}/videos",
+}
 
 # Here you can define which files/folder you would like to keep, these files
 # and folders are not considered contents so they will not be synced from one
@@ -77,9 +80,9 @@ set :keep_releases, 5
 # are not considered contents so they will not be synced from one
 # server to another with the tasks mulltistage:sync:* instead they will be kept
 # between versions in the shared/config folder
-# set :configuration_files, [
-#   'config/database.yml',
-# ]
+set :configuration_files, [
+  'config/database.yml',
+]
 
 #
 #
@@ -167,17 +170,22 @@ set :web_server_app, :nginx
 # Absolute path to this application's web server configuration
 # This gem suppose that you are already including files from the folder you're placing
 # the config file in, if not the application won't be up after deployment
-set :web_conf_file, -> { "/etc/nginx/#{fetch :stage}/#{fetch :application}.conf" }
+set :web_conf_file, -> { "/etc/nginx/sites-enabled/#{fetch :stage}_#{fetch :application}.conf" }
 
-# Which port does the server runs on ?
-set :web_server_listen_port, 80
+# Which port(s) does the server runs on ?
+#set :web_server_listen_port, 80
+set :web_server_listen_ports, [80,'443 ssl']
 
 # What is the application url ?
 # THis is used for Virtual Hosts
-set :application_url, %w(example.com www.example.com)
+set :application_url, %w(example.com)
+
+set :application_redirects, {'www.example.com'=>'example.com'}
+
+#set :passenger_min_instances, 3
 
 # What are the names of the indexes
-set :web_server_indexes, %w(index.php index.html)
+set :web_server_indexes, %w(index.html)
 
 # Deny access ?
 # Define here an array of files/pathes to deny access from.
@@ -210,7 +218,7 @@ set :web_server_mod_rewrite, true
 #
 # For Apache
 # =>
-set :web_server_mode, :reverse_proxy
+set :web_server_mode, :passenger
 
 # Server mode specific configurations
 # Uncomment and edit the one depending on the enabled mode
@@ -241,7 +249,7 @@ set :enable_rvm, true
 
 # What's the type of rvm ?
 # :system and :user
-set :rvm_type, :system
+set :rvm_type, :user
 
 # What rvm string should we use ?
 set :rvm_ruby_string, "1.9.2"
@@ -275,6 +283,81 @@ set :rvm_ruby_string, "1.9.2"
 # Where's unicorn config ?
 # Default: "#{fetch :current_path}/config/unicorn.rb"
 # set :unicorn_config, -> { "#{fetch :current_path}/config/unicorn.rb" }
+
+#
+#
+#############
+
+#############
+#  REDIS
+#  default paths configuration: 
+#          unixsocket {shared_path}/pids/redis_{dbname}.sock
+#          pidfile {shared_path}/pids/redis_{dbname}.pid
+#          logfile {logs_path}/redis_{dbname}.log
+#          dir {shared_path}/shared_contents/redis_{dbname}
+#
+
+
+# :redis - configure redis instances as hash: dbname=>dbconfiguration
+#
+# dbconfiguration
+# options: rdb-save db dump to disk (default false)
+#          rdb save times (default: {900=>1,300=>10,60=>1000})
+#          appendonly - appendonly mode (dafault false)
+#          port - use tcp port (default 0 - using only socket)
+#          databases - number of databases (default 3)
+#          monit - write monit rules for redis instance - works only if monit extension included (default true)
+#          monit_rules - additional monit rules for redis instance - (default [])
+#          
+set :redis, {:disk=>{
+                    :rdb=>false,
+                    :appendonly=>true,
+                    :databases=>10,
+                    :monit_rules=>['if memory usage > 50% then alert',
+                                   'if 10 restarts within 10 cycles then timeout',
+                                   'if cpu > 40% for 2 cycles then alert']
+              },
+             :memory=>{:rdb=>false,:appendonly=>false}
+             }
+             
+# set :redis_server_bin,'/usr/local/bin/redis-server'
+# set :redis_cli_bin,'/usr/local/bin/redis-cli'
+#
+#
+#
+#############
+
+#############
+# sphinx
+#
+
+set :sphinx_port, 9312
+# set :sphinx_enable_star, false
+# set :sphinx_mem_limit,256
+
+# set sphinx monitoring - works only if monit extension included
+set :sphinx_monit, true
+set :sphinx_monit_rules=>['if cpu > 80% for 3 cycles then alert',
+                          'if memory usage > 50% then alert']
+
+#
+#
+#############
+
+#############
+# database.yml
+#
+# Database configuration file (you can use all cap variables like: <%= deploy_to %> <%= stage %> <%= credentials[:user] %> <%= credentials[:pass] %> <%= rails_env %> etc)
+set :db_config_template, File.expand_path(File.join(File.dirname(__FILE__), 'deploy', 'database.yml.erb'))
+#
+#
+#############
+
+#############
+# Monit configuration file
+
+set :monit_configuration_file, "/etc/monit/monitrc"
+set :monit_template_file, File.expand_path(File.join(File.dirname(__FILE__), 'external', 'monitrc.erb'))
 
 #
 #

@@ -1,3 +1,8 @@
+2012-08-28  Michał Rogowski <michal.rogowski1@gmail.com>
+
+  * new receipts for redis, monit, sphinx
+  * improvments in: tasks order, mysql server configuration, etc
+
 2011-09-12  Wael Nasreddine <wael.nasreddine@gmail.com>
 
   * lib/capistrano-exts/receipts/contao.rb: MISC: Typo in the function name

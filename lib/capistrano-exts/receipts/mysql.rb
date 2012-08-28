@@ -85,7 +85,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       random_file = random_tmp_file mysql_root_credentials[:pass]
 
       unless mysql_root_credentials.blank?
-        set :mysql_db_pass, -> { gen_pass(8) }
+        set :mysql_db_pass, -> { gen_pass(16) }
         mysql_create = ""
 
         mysql_db_hosts.each do |host|
@@ -114,6 +114,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           CMD
 
           set :mysql_credentials, {
+            adapter: 'mysql2',
             host: fetch(:mysql_db_server, 'localhost'),
             user: mysql_db_user,
             pass: fetch(:mysql_db_pass),
@@ -315,7 +316,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       desc "[internal] write database #{var.gsub(/_/, ' ')}"
       task "write_#{var}", :roles => :app, :except => { :no_release => true } do
-        unless exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
+        unless exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym,var=='root_credentials')
           mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
           credentials_formatted_content = credentials_formatted(fetch "mysql_#{var}".to_sym)
           random_file = random_tmp_file(credentials_formatted_content)
@@ -326,6 +327,8 @@ Capistrano::Configuration.instance(:must_exist).load do
               #{try_sudo} cp #{random_file} #{mysql_credentials_file}; \
               #{try_sudo} rm -f #{random_file}
             CMD
+            logger.info "mysql credentials ----------------------------------------"
+            find_and_execute_task("mysql:print_#{var}")
           rescue Capistrano::CommandError
             logger.info "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
             find_and_execute_task("mysql:print_#{var}")
@@ -350,11 +353,13 @@ Capistrano::Configuration.instance(:must_exist).load do
           mysql_credentials_pass_regex_match = fetch "mysql_#{var}_pass_regex_match".to_sym
 
           # We haven't got the credentials yet, look for them
-          if exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
+          
+          
+          if exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch("mysql_#{var}_file".to_sym),var=='root_credentials')
             mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
 
             begin
-              set "mysql_#{var}_file_contents".to_sym, read(mysql_credentials_file)
+              set "mysql_#{var}_file_contents".to_sym, read(mysql_credentials_file,var=='root_credentials')
             rescue Capistrano::CommandError
               set "mysql_#{var}".to_sym, false
             end

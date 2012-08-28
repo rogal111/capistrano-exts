@@ -1,0 +1,11 @@
+<% fetch(:redis,{}).each do |name,v| %>
+<% next if v[:monit]==false %>
+check process redis_<%= name %>_<%=application%>_<%= stage %> with pidfile <%= shared_path %>/pids/redis_<%= name %>.pid
+  start program = "<%= fetch(:redis_server_bin,'/usr/local/bin/redis-server') %> <%= shared_path %>/config/redis_<%= name %>.conf" as uid <%= app_owner %> and gid <%= app_group %>
+  stop program = "<%= fetch(:redis_cli_bin,'/usr/local/bin/redis-cli') %> -s <%= shared_path %>/pids/redis_<%= name %>.sock SHOUTDOWN" as uid <%= app_owner %> and gid <%= app_group %>
+  if failed unixsocket <%= shared_path %>/pids/redis_<%= name %>.sock then alert
+  if failed unixsocket <%= shared_path %>/pids/redis_<%= name %>.sock then restart
+  <%- v[:monit_rules].each do |i| -%>
+    <%= i %>
+  <%- end if v[:monit_rules] -%>
+<% end %>

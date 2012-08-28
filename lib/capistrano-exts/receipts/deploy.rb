@@ -20,13 +20,14 @@ Capistrano::Configuration.instance(:must_exist).load do
         run <<-CMD
           #{try_sudo} chown -R \
             #{fetch :app_owner, 'www-data'}:#{fetch :app_group, 'www-data'} \
-            #{fetch :deploy_to}/releases \
-            #{fetch :deploy_to}/shared
+            #{fetch :deploy_to}
         CMD
       end
 
-      run "chmod -R g+w #{fetch :latest_release}" if fetch(:group_writable, true)
+      run "#{try_sudo} chmod -R g+w #{fetch :deploy_to}" if fetch(:group_writable, true)
     end
+    
+   
 
     desc "[internal] create the required folders."
     task :folders, :roles => :app do
@@ -38,7 +39,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         #{try_sudo} mkdir -p #{fetch :shared_path}/items &&
         #{try_sudo} mkdir -p #{fetch :shared_path}/__system__ &&
         #{try_sudo} mkdir -p #{fetch :shared_path}/config &&
-        #{try_sudo} mkdir -p #{fetch :shared_path}/items
+        #{try_sudo} mkdir -p #{fetch :shared_path}/items &&
+        #{try_sudo} mkdir -p #{fetch :deploy_to}/releases
       CMD
 
       if exists? :logs_path
@@ -76,7 +78,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Dependencies
   before "deploy", "deploy:check_if_remote_ready"
-  after "deploy:restart", "deploy:fix_permissions"
+  #after "deploy:restart", "deploy:fix_permissions"
+  after "deploy:server:setup:finish", "deploy:fix_permissions"
   after "deploy:setup", "deploy:folders"
   after "deploy:setup", "deploy:symlink_public_folders"
 end

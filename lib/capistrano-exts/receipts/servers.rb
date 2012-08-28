@@ -59,12 +59,24 @@ Capistrano::Configuration.instance(:must_exist).load do
         task :finish do
           # Empty task for callbacks
         end
+        
+        desc "[internal] setup sudo for deploy:servers:setup."
+        task :set_sudo, :roles => :app do
+          set :use_sudo, true if fetch(:use_sudo_for_setup, true)
+        end
+        
+        desc "[internal] unsetup sudo after deploy:servers:setup."
+        task :unset_sudo, :roles => :app do
+          set :use_sudo, false
+        end
 
       end
     end
   end
 
   # Callbacks
+  before "deploy:server:setup", "deploy:server:setup:set_sudo"
+  after "deploy:server:setup:finish", "deploy:server:setup:unset_sudo"
   before "deploy:server:setup", "deploy:server:setup:folders"
   after  "deploy:server:setup", "deploy:server:setup:finish"
 

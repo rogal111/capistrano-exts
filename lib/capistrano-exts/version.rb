@@ -1,8 +1,8 @@
 module Capistrano
   module Extensions
     module Version #:nodoc:
-      MAJOR = 1
-      MINOR = 14
+      MAJOR = 2
+      MINOR = 1
       TINY = 1
 
       ARRAY  = [MAJOR, MINOR, TINY]

@@ -15,11 +15,16 @@ Capistrano::Configuration.instance(:must_exist).load do
       database_yml_config_path = "#{fetch :shared_path}/config/config_database.yml"
       unless remote_file_exists?(database_yml_config_path)
         on_rollback { run "rm -f #{database_yml_config_path}" }
-        mysql_credentials = fetch :mysql_credentials
-
-        # Get the db_config
-        db_config = rails_database_yml(mysql_credentials, RAILS_DB_ADAPTER_MAPPING)
-
+        credentials = fetch :mysql_credentials
+        db_config_template = fetch :db_config_template
+        db_config=if db_config_template and File.exists?(db_config_template)
+            config = ERB.new(File.read(db_config_template))
+            run "mkdir -p #{shared_path}/config"
+            config.result(binding)
+        else
+          # Get the db_config
+          rails_database_yml(credentials, RAILS_DB_ADAPTER_MAPPING)
+        end
         # Generate a remote file name
         random_file = random_tmp_file(db_config)
         put db_config, random_file
@@ -44,14 +49,12 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Database.yml file
-  after "deploy:folders", "rails:write_database_yml"
+  after "deploy:server:setup:folders", "rails:write_database_yml"
   before "rails:write_database_yml", "mysql:credentials"
 
-  # Restart the server
-  after "deploy:restart", "deploy:fix_permissions"
 
   # Capistrano is broken
   # See: https://github.com/capistrano/capistrano/issues/81
   # TODO: Should be conditional, only if bundle:install exists
-  before "deploy:assets:precompile", "bundle:install"
+  #before "deploy:assets:precompile", "bundle:install"
 end

@@ -5,17 +5,17 @@ require "capistrano-exts/version"
 Gem::Specification.new do |s|
   s.name        = "capistrano-exts"
   s.version     = Capistrano::Extensions::Version::STRING.dup
-  s.authors     = ["Wael Nasreddine"]
-  s.email       = ["wael.nasreddine@gmail.com"]
-  s.homepage    = "https://github.com/TechnoGate/capistrano-exts"
+  s.authors     = ["Michał Rogowski","Wael Nasreddine",]
+  s.email       = ["michal.rogowski1@gmail.com","wael.nasreddine@gmail.com"]
+  s.homepage    = "https://github.com/rogal111/capistrano-exts"
   s.summary     = %q{Set of helper tasks to help with the initial server configuration and application provisioning.}
   s.description = <<-EOD
-Capistrano exts is a set of helper tasks to help with the initial server
+Capistrano exts (rogal111 fork) is a set of helper tasks to help with the initial server
 configuration and application provisioning. Things like creating the directory
 structure, setting up that database, and other one-off you might find yourself
 doing by hand far too often. It provides many helpful post-deployment tasks to
 help you import/export database and contents as well as sync one stage with
-another.
+another. This fork have new receipts for monit, redis, sphinx, nginx, logrotate.
 EOD
 
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.2")

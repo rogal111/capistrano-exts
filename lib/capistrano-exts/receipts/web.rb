@@ -11,7 +11,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Symlink system folder"
     task :symlink_system_folder, :roles => :web, :except => { :no_release => true } do
       public_path = fetch(:public_path).gsub(%r{#{current_path}}, latest_release)
-      link_file "#{fetch :shared_path}/__system__", "#{public_path}/__system__"
+      link_file("#{fetch :shared_path}/__system__", "#{public_path}/__system__", false)
     end
 
     desc <<-DESC
@@ -53,8 +53,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       if File.directory?(maintenance_path)
         # Generate random names
-        random_folder = random_tmp_file
-        random_file = "#{random_tmp_file}.tar.gz"
+        random_folder = local_random_tmp_file
+        random_file = "#{local_random_tmp_file}.tar.gz"
         # Add a rollback hook
         on_rollback do
           run "rm -f #{random_file}"
@@ -132,5 +132,5 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Dependencies
   after "deploy:finalize_update", "web:symlink_system_folder"
-  after "web:disable", "deploy:fix_permissions"
+  #after "web:disable", "deploy:fix_permissions"
 end

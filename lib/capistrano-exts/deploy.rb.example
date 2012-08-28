@@ -1,0 +1,46 @@
+# Adding necessary paths
+$:.unshift(File.expand_path('./lib', ENV['rvm_path'])) # Add RVM's lib directory to the load path.
+
+#####################
+## CHANGE AFTER ME ##
+#####################
+
+set :application,           "napozycji"
+set :local_repository,      "ssh://ravelia@ravelia2.dedyk.ogicom.net/home/ravelia/git/napozycji.git"
+set :repository,            "/home/ravelia/git/napozycji.git"
+set :scm,                   :git
+set :use_sudo, false
+#set :git_enable_submodules, 1
+
+# Stages
+set :stages, [:staging, :production]
+set :default_stage, :staging
+
+# Capistrano extensions
+# :multistage, :git, :deploy, :mysql, :servers, :redis, :sphinx, :monit, :rails
+set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :servers, :redis, :monit, :rails]
+
+default_run_options[:pty] = true
+#ssh_options[:forward_agent] = true
+
+##################
+## DEPENDENCIES ##
+##################
+
+after "deploy", "deploy:cleanup" # keeps only last 5 releases
+
+##################
+## REQUIREMENTS ##
+##################
+# Require capistrano-exts
+$: << File.expand_path(File.join(File.dirname(__FILE__), '..','lib'))
+
+require 'capistrano-exts'
+# Require bundler tasks
+require 'bundler/capistrano'
+
+load 'deploy/assets'
+
+set :whenever_command, "bundle exec whenever"
+set :whenever_environment, defer { rails_env }
+require "whenever/capistrano"
