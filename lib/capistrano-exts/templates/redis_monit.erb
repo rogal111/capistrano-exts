@@ -5,7 +5,6 @@ check process redis_<%= name %>_<%=application%>_<%= stage %> with pidfile <%= s
   stop program = "<%= fetch(:redis_cli_bin,'/usr/local/bin/redis-cli') %> -s <%= shared_path %>/pids/redis_<%= name %>.sock SHOUTDOWN" as uid <%= app_owner %> and gid <%= app_group %>
   if failed unixsocket <%= shared_path %>/pids/redis_<%= name %>.sock then alert
   if failed unixsocket <%= shared_path %>/pids/redis_<%= name %>.sock then restart
-<% v[:monit_rules].each do |i| %>
-    <%= i %>
+<% v[:monit_rules].each do |i| %>  <%= i %>
 <% end if v[:monit_rules] %>
 <% end %>
