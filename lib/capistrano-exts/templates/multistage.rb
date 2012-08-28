@@ -337,7 +337,7 @@ set :sphinx_port, 9312
 
 # set sphinx monitoring - works only if monit extension included
 set :sphinx_monit, true
-set :sphinx_monit_rules=>['if cpu > 80% for 3 cycles then alert',
+set :sphinx_monit_rules, ['if cpu > 80% for 3 cycles then alert',
                           'if memory usage > 50% then alert']
 
 #
