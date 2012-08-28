@@ -1,13 +1,14 @@
-# Capistrano Exts [![Build Status](http://travis-ci.org/TechnoGate/capistrano-exts.png)](http://travis-ci.org/TechnoGate/capistrano-exts)
+# Capistrano Exts (TechnoGate/capistrano-exts fork)
+
+This fork have new receipts for monit, redis, sphinx, nginx, logrotate. Read documentation in **/config/deploy/stage.rb** after executing `$ cap multistage:setup`.
 
 Capistrano exts is a set of helper tasks to help with the initial server
 configuration and application provisioning. Things like creating the directory
 structure, setting up that database, and other one-off you might find yourself
 doing by hand far too often. It provides many helpful post-deployment tasks to
 help you import/export database and contents as well as sync one stage with
-another.
+another. 
 
-[![Click here to lend your support to: Open Source Projects and make a donation at www.pledgie.com !](http://www.pledgie.com/campaigns/16123.png?skin_name=chrome)](http://www.pledgie.com/campaigns/16123)
 
 # Installation
 
@@ -41,7 +42,7 @@ set :stages, [:development, :staging, :production]
 set :default_stage, :development
 
 # Capistrano extensions
-# Valid extensions: :multistage, :git, :mysql, :rails, :contao, :contents, :god, :unicorn, :servers
+# Valid extensions: :multistage, :git, :mysql, :rails, :contao, :contents, :god, :unicorn, :servers, :redis, sphinx, :monit
 set :capistrano_extensions, [:multistage, :git, :mysql, :rails, :servers]
 ```
 
@@ -168,7 +169,8 @@ $ cap multistage:sync:production_with_staging
 
 ## This code is free to use under the terms of the MIT license.
 
-Copyright (c) 2011 Wael Nasreddine <wael.nasreddine@gmail.com>
+Copyright (c) 2012 Michał Rogowski <michal.rogowski1@gmail.com>
+thanks to: Wael Nasreddine <wael.nasreddine@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
