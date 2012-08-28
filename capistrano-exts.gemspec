@@ -29,7 +29,7 @@ EOD
   s.add_dependency 'capistrano'
   s.add_dependency 'capistrano_colors'
   s.add_dependency 'i18n'
-  s.add_dependency 'activesupport', '~>3.2.3'
+  #s.add_dependency 'activesupport', '~>3.2.3'
 
   # Development dependencies
   s.add_development_dependency 'guard'
