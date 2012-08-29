@@ -29,6 +29,7 @@ Capistrano::Configuration.instance(:must_exist).load do
             nginx.denied_access = fetch :denied_access if exists?(:denied_access)
             nginx.passenger_min_instances = fetch :passenger_min_instances if exists?(:passenger_min_instances)
             nginx.application_redirects = fetch :application_redirects if exists?(:application_redirects)
+            nginx.static_urls = fetch(:static_urls,false)
             
             if exists?(:web_server_listen_ports)
               nginx.listen_ports = fetch(:web_server_listen_ports)

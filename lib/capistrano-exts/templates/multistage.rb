@@ -180,6 +180,9 @@ set :web_server_listen_ports, [80,'443 ssl']
 # THis is used for Virtual Hosts
 set :application_url, %w(example.com)
 
+# THis is used for Virtual Hosts without application layer
+# set :static_urls, %w(css.example.com img.example.com) 
+
 set :application_redirects, {'www.example.com'=>'example.com'}
 
 #set :passenger_min_instances, 3
@@ -356,6 +359,8 @@ set :db_config_template, File.expand_path(File.join(File.dirname(__FILE__), 'dat
 #############
 # Monit configuration file
 
+
+#set :su_bin, "/bin/su"
 set :monit_configuration_file, "/etc/monit/monitrc"
 set :monit_template_file, File.expand_path(File.join(File.dirname(__FILE__), '..', 'external', 'monitrc.erb'))
 

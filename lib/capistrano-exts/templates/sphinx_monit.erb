@@ -1,7 +1,7 @@
 <% if fetch(:sphinx_monit,true) %>
 check process sphinx_<%=application%>_<%= stage %> with pidfile <%= shared_path %>/pids/searchd.pid
-  start program = "/home/ravelia/.rvm/bin/rvm-shell -c 'cd <%= deploy_to %>/current; RAILS_ENV=<%= rails_env %> rake ts:start'" as uid <%= app_owner %> and gid <%= app_group %>
-  start program = "/home/ravelia/.rvm/bin/rvm-shell -c 'cd <%= deploy_to %>/current; RAILS_ENV=<%= rails_env %> rake ts:stop'" as uid <%= app_owner %> and gid <%= app_group %>
+  start program = "<%= fetch(:su_bin,'/bin/su') %> - ravelia -c 'cd <%= deploy_to %>/current; RAILS_ENV=<%= rails_env %> rake ts:start'"
+  start program = "<%= fetch(:su_bin,'/bin/su') %> - ravelia -c 'cd <%= deploy_to %>/current; RAILS_ENV=<%= rails_env %> rake ts:stop'"
   if failed host 127.0.0.1 port <%= fetch(:sphinx_port,9312) %> then restart
 <% fetch(:sphinx_monit_rules).each do |i| %>  <%= i %>
 <% end if fetch(:sphinx_monit_rules) %>

@@ -22,13 +22,20 @@
 	  index <%= @indexes.join(' ') %>;
 	<% end %>
 	
+	<% @denied_access.each do |f| %>
+	    location ~ <%= Regexp.escape f %> {
+	      deny  all;
+	    }
+	<% end if @denied_access.present? %>
+	
 	  # Enable recursive error pages to catch 405 in a 503 error.
 	  recursive_error_pages on;
 	
+	  
 	  # This allows people to use stylesheet, javascript and images in their
 	  # maintenance html file
-	  if ($request_filename ~* \.(css|js|jpg|gif|png)$) {
-	    break;
+	  if ($request_filename ~* __system__\/maintenance(.*)\.(css|js|jpg|gif|png)$) {
+		    break;
 	  }
 	
 	  # If the maintenance page exists, throw a 503 error which we'd catch later.
@@ -53,10 +60,10 @@
 	  error_page 404 /404.html;
 	  error_page 500 502 504 /500.html;
 	
-	<% if passenger? %>
+<% if passenger? %>
 	  # Enable passenger
 	  passenger_enabled on;
-	  try_files /__system__/maintenance/index.html $uri /cache$uri /cache$uri.html /cache$uri/index.html @passenger;
+	  try_files $uri /cache$uri /cache$uri.html /cache$uri/index.html @passenger;
 
 	  <% if @passenger_min_instances %>
 	    passenger_min_instances <%= @passenger_min_instances %>;
@@ -79,7 +86,7 @@
 		    add_header  Last-Modified "";
 		    add_header  ETag "";
 		}
-	<% end %>
+<% end %>
 	
 	  <% if php_fpm? && mod_rewrite? %>
 	    # this sends all non-existing file or directory requests to index.php
@@ -110,13 +117,6 @@
 	    proxy_busy_buffers_size    64k;
 	    proxy_temp_file_write_size 64k;
 	  <% end %>
-	  }
-	
-	  <% @denied_access.each do |f| %>
-	    location ~ <%= Regexp.escape f %> {
-	      deny  all;
-	    }
-	  <% end if @denied_access.present? %>
 	
 	<% if php_fpm? %>
 	  location ~ .php$ {
@@ -177,3 +177,79 @@ server {
 		<% end %>
 		}
 	<% end %>
+	
+<% if @static_urls %>
+	server {
+	<% @listen_ports.each do |port| %>
+	  listen <%= port %>;
+	<% end %>
+	  server_name <%= @static_urls.join(' ') %>;
+	
+	<% if authentification? %>
+	  # Authentification
+	  auth_basic "Valid user required to access this server";
+	  auth_basic_user_file <%= @authentification_file %>;
+	<% end %>
+	
+	<% if @logs_path %>
+	  access_log <%= @logs_path %>/static.access.log main;
+	  error_log <%= @logs_path %>/static.error.log;
+	<% end %>
+	
+	<% unless reverse_proxy? %>
+	  root <%= @public_path %>;
+	<% end %>
+	
+	<% if @indexes.present? %>
+	  index <%= @indexes.join(' ') %>;
+	<% end %>
+	
+	  # Enable recursive error pages to catch 405 in a 503 error.
+	  recursive_error_pages on;
+	  
+	  <% @denied_access.each do |f| %>
+	    location ~ <%= Regexp.escape f %> {
+	      deny  all;
+	    }
+	  <% end if @denied_access.present? %>
+	
+	  
+	  # This allows people to use stylesheet, javascript and images in their
+	  # maintenance html file
+	  if ($request_filename ~* __system__\/maintenance(.*)\.(css|js|jpg|gif|png)$) {
+		    break;
+	  }
+	
+	  # If the maintenance page exists, throw a 503 error which we'd catch later.
+	  if (-f $document_root/__system__/maintenance/index.html) {
+	    return 503;
+	  }
+	
+	  # Catch the 503 error and send it to the @maintenance location
+	  error_page 503 @maintenance;
+	
+	  # The @maintenance location
+	  location @maintenance {
+	    # Nginx will refuse POST requests to a static file and will throw a 405 error
+	    # So we need to catch that and display again our maintenance page
+	    error_page 405 = /__system__/maintenance/index.html;
+	
+	    # Rewrite all the requests to the maintenance page if it exists.
+	    rewrite ^(.*)$ /__system__/maintenance/index.html break;
+	  }
+	
+	  # Error Pages
+	  error_page 404 /404.html;
+	  error_page 500 502 504 /500.html;
+	
+	<% if passenger? %>		
+		gzip_static on;
+		location ~ ^/(assets|images|javascripts|stylesheets|swfs|system|__system__)/ {
+		    expires     max;
+		    add_header  Cache-Control public;
+		    add_header  Last-Modified "";
+		    add_header  ETag "";
+		}
+	<% end %>
+}
+<% end %>
