@@ -30,6 +30,8 @@ Capistrano::Configuration.instance(:must_exist).load do
             nginx.passenger_min_instances = fetch :passenger_min_instances if exists?(:passenger_min_instances)
             nginx.application_redirects = fetch :application_redirects if exists?(:application_redirects)
             nginx.static_urls = fetch(:static_urls,false)
+            nginx.ssl_certificate = fetch(:ssl_certificate,false)
+            nginx.ssl_certificate_key = fetch(:ssl_certificate_key,false)
             
             if exists?(:web_server_listen_ports)
               nginx.listen_ports = fetch(:web_server_listen_ports)

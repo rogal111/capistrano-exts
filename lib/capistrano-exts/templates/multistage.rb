@@ -167,6 +167,12 @@ set :web_server_app, :nginx
 # set :nginx_init_path, '/etc/init.d/nginx'
 # set :apache_init_path, '/etc/init.d/apache2'
 
+
+# SSL certificates
+# set :ssl_certificate, '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+# set :ssl_certificate_key, '/etc/ssl/private/ssl-cert-snakeoil.key'
+
+
 # Absolute path to this application's web server configuration
 # This gem suppose that you are already including files from the folder you're placing
 # the config file in, if not the application won't be up after deployment
