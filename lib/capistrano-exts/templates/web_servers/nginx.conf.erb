@@ -15,10 +15,10 @@
 	<% end %>
 	
 	<% if @ssl_certificate %>
-	set :ssl_certificate, '<%= @ssl_certificate %>';
+	    ssl_certificate '<%= @ssl_certificate %>';
 	<% end %>
 	<% if @ssl_certificate_key %>
-	set :ssl_certificate_key, '<%= @ssl_certificate_key %>';
+	    ssl_certificate_key '<%= @ssl_certificate_key %>';
 	<% end %>
 	
 	<% unless reverse_proxy? %>
@@ -204,10 +204,10 @@ server {
 	<% end %>
 	
 	<% if @ssl_certificate %>
-	set :ssl_certificate, '<%= @ssl_certificate %>';
+	    ssl_certificate '<%= @ssl_certificate %>';
 	<% end %>
 	<% if @ssl_certificate_key %>
-	set :ssl_certificate_key, '<%= @ssl_certificate_key %>';
+	    ssl_certificate_key '<%= @ssl_certificate_key %>';
 	<% end %>
 	
 	<% unless reverse_proxy? %>
