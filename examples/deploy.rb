@@ -28,7 +28,7 @@ set :default_stage, :development
 
 # Capistrano extensions
 # :multistage, :git, :deploy, :mysql, :servers, :redis, :sphinx, :monit, :rails
-set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :servers, :sphinx, :redis, :monit, :rails]
+set :capistrano_extensions, [:multistage, :git, :deploy, :files, :contents, :mysql, :servers, :sphinx, :redis, :monit, :rails]
 
 default_run_options[:pty] = true
 #ssh_options[:forward_agent] = false
